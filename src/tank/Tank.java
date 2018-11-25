@@ -1,6 +1,8 @@
 package tank;
 
 import java.awt.*;
+import java.util.Date;
+import java.util.Vector;
 
 abstract public class Tank {
     public static int wheelWidth=5* Parameter.sizeNum;
@@ -14,10 +16,15 @@ abstract public class Tank {
     public  static Color cannonColor=Color.YELLOW;
     public static Color hbodyColor=Color.CYAN;
     public static Color hcannonColor=Color.BLUE;
+    private Vector<Bullet> bullets=new Vector<Bullet>();
+    private long lastShootTime=new Date().getTime();
+    private long twoShootInterVal=Parameter.twoShootInterval;
     private int x;
     private int y;
     private int type;
     private int dir;
+    private int xBullet;
+    private int yBullet;
     public Tank(int x,int y,int type){
         this.x=x;
         this.y=y;
@@ -64,7 +71,34 @@ abstract public class Tank {
                     g.fill3DRect(x,y+wheelWidth+(bodyWidth-cannonWidth)/2,wheelWidth+bodyLength/2,cannonWidth,false);
                     break;
         }
+        for(int i=0;i<bullets.size();++i){
+            bullets.get(i).drawBullet(g);
+        }
+
     }
+    public void shoot(){
+        //每次都按shoot都要生成一个线程
+        if(new Date().getTime()-lastShootTime<twoShootInterVal)return;
+        lastShootTime=new Date().getTime();
+        Bullet item=new Bullet(xBullet,yBullet,this.dir);
+        Thread th=new Thread(item);
+        th.start();
+        bullets.add(item);
+        for(int i=0;i<bullets.size();++i)
+        {
+            if(!bullets.get(i).getIsLived())
+            {
+                bullets.remove(i);
+                --i;
+            }
+            else
+                break;
+        }
+
+        System.out.println("The number of the bullets:"+bullets.size());
+    }
+    /*---------------------------------------------
+    * 以下是几句话的简单函数*/
     public void moveUp(){y-=speed;}
     public void moveDown(){y+=speed;}
     public void moveLeft(){x-=speed;}
@@ -99,5 +133,20 @@ abstract public class Tank {
 
     public void setDir(int dir) {
         this.dir = dir;
+        //修改子弹生成的位置
+        switch (dir){
+            case 0:xBullet=x+wheelWidth+bodyWidth/2;
+                    yBullet=y;
+                    break;
+            case 1: xBullet=x+wheelLength;
+                    yBullet=y+wheelWidth+bodyWidth/2;
+                    break;
+            case 2: xBullet=x+wheelWidth+bodyWidth/2;
+                    yBullet=y+wheelLength;
+                    break;
+            case 3: xBullet=x;
+                    yBullet=y+wheelWidth+bodyWidth/2;
+                    break;
+        }
     }
 }

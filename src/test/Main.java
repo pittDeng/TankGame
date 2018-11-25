@@ -4,22 +4,36 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Date;
 
-public class Main extends JFrame {
+public class Main  implements Runnable{
     public static void  main(String [] args){
-        Main frame=new Main();
+        Main temp=new Main();
+        Thread th=new Thread(temp);
+        th.start();
+
+
+
 
 
     }
-    public Main(){
-        MyPanel myPanel=new MyPanel();
-        this.add(myPanel);
-        this.setSize(400,300);
-        this.setVisible(true);
-        this.addKeyListener(myPanel);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+
+    @Override
+    public void run() {
+        for(int i=0;i<20;++i){
+            Date date=new Date();
+            try{
+                Thread.sleep(1000);
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+            System.out.println(date.getTime());
+        }
     }
 }
+
 class MyPanel extends Panel implements KeyListener {
     @Override
     public void paint(Graphics g) {
