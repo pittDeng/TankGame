@@ -1,9 +1,6 @@
 package game;
 
-import tank.Enemy;
-import tank.Hero;
-import tank.Parameter;
-import tank.Tank;
+import tank.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,6 +34,7 @@ public class TankGame extends JFrame {
 class MyPanel extends JPanel implements KeyListener,Runnable {
     Hero hero;
     Vector<Enemy> enemies;
+    private Vector<Bullet> bullets=new Vector<Bullet>();
     private static int sleepTime=Parameter.flushTime;
     private int numEnemies=3;
     private int width;
@@ -59,7 +57,10 @@ class MyPanel extends JPanel implements KeyListener,Runnable {
         g.setColor(Color.BLACK);
         g.fillRect(0,0,tg.getWidth(),tg.getHeight());
         hero.paint(g);
-        for(int i=0;i<numEnemies;++i){
+        for(int i=0;i<bullets.size();++i){
+            bullets.get(i).drawBullet(g);
+        }
+        for(int i=0;i<enemies.size();++i){
             enemies.get(i).paint(g);
         }
     }
@@ -91,7 +92,7 @@ class MyPanel extends JPanel implements KeyListener,Runnable {
                                 break;
         }
         if(e.getKeyCode()==KeyEvent.VK_J){
-            hero.shoot();
+            heroShoot();
         }
         repaint();
     }
@@ -103,14 +104,81 @@ class MyPanel extends JPanel implements KeyListener,Runnable {
 
     @Override
     public void run() {
+        int numFlush=0;
         while (true){
             try{
                 Thread.sleep(sleepTime);
+                ++numFlush;
             }catch (InterruptedException e){
                 e.printStackTrace();
             }
+            //每刷新5次再检测子弹是否打中Tank
+//            if(numFlush==2){
+//                numFlush=0;
+//                isHit();
+//            }
+            isHit();
+            removeDeadBullet();
+            removeDeadTank();
 //            System.out.println("I am flushing!");
             this.repaint();
+        }
+    }
+    private void removeDeadBullet(){
+        for(int i=0;i<bullets.size();++i)
+        {
+            if(!bullets.get(i).getIsLived())
+            {
+                bullets.remove(i);
+                --i;
+            }
+            else
+                continue;
+        }
+    }
+    private void heroShoot(){
+        Bullet item=hero.shoot();
+        if(item!=null)
+        {
+            bullets.add(item);
+        }
+        //检查子弹是否正常销毁
+        //System.out.println("bullets ' num"+bullets.size());
+    }
+    private void isHitEnemy(Enemy enemy,Bullet bullet){
+        switch (enemy.getDir()){
+            case 0:
+            case 2:
+                if(bullet.getX()>enemy.getX()&&bullet.getX()<enemy.getX()+ Tank.tankWidth&&
+                        bullet.getY()>enemy.getY()&&bullet.getY()<enemy.getY()+Tank.tankHeight){
+                    bullet.setLived(false);
+                    enemy.setLived(false);
+                }
+                break;
+            case 1:
+            case 3:
+                if(bullet.getX()>enemy.getX()&&bullet.getX()<enemy.getX()+ Tank.tankHeight&&
+                        bullet.getY()>enemy.getY()&&bullet.getY()<enemy.getY()+Tank.tankWidth){
+                    bullet.setLived(false);
+                    enemy.setLived(false);
+                }
+                break;
+        }
+    }
+    private void isHit(){
+        for(int i=0;i<enemies.size();++i)
+            for(int j=0;j<bullets.size();++j){
+                Enemy enemy=enemies.get(i);
+                Bullet bullet=bullets.get(j);
+                if(enemy.isLived()&&bullet.getIsLived()) isHitEnemy(enemies.get(i),bullets.get(j));
+            }
+    }
+    private void removeDeadTank(){
+        for(int i=0;i<enemies.size();++i){
+            if(!enemies.get(i).isLived()){
+                enemies.remove(i);
+                --i;
+            }
         }
     }
 }

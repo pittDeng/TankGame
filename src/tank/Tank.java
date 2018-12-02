@@ -11,12 +11,14 @@ abstract public class Tank {
     public static int bodyLength=20* Parameter.sizeNum;
     public static int diameter=10* Parameter.sizeNum;
     public static int cannonWidth=4* Parameter.sizeNum;
+    public static int tankWidth=2*wheelWidth+bodyWidth;
+    public static int tankHeight=wheelLength;
     public static int speed=5;
     public  static Color bodyColor=Color.YELLOW;
     public  static Color cannonColor=Color.YELLOW;
     public static Color hbodyColor=Color.CYAN;
     public static Color hcannonColor=Color.BLUE;
-    private Vector<Bullet> bullets=new Vector<Bullet>();
+
     private long lastShootTime=new Date().getTime();
     private long twoShootInterVal=Parameter.twoShootInterval;
     private int x;
@@ -25,6 +27,7 @@ abstract public class Tank {
     private int dir;
     private int xBullet;
     private int yBullet;
+    private boolean isLived=true;
     public Tank(int x,int y,int type){
         this.x=x;
         this.y=y;
@@ -71,31 +74,20 @@ abstract public class Tank {
                     g.fill3DRect(x,y+wheelWidth+(bodyWidth-cannonWidth)/2,wheelWidth+bodyLength/2,cannonWidth,false);
                     break;
         }
-        for(int i=0;i<bullets.size();++i){
-            bullets.get(i).drawBullet(g);
-        }
+
 
     }
-    public void shoot(){
+    public Bullet shoot(){
         //每次都按shoot都要生成一个线程
-        if(new Date().getTime()-lastShootTime<twoShootInterVal)return;
+        if(new Date().getTime()-lastShootTime<twoShootInterVal)return null;
         lastShootTime=new Date().getTime();
         Bullet item=new Bullet(xBullet,yBullet,this.dir);
         Thread th=new Thread(item);
         th.start();
-        bullets.add(item);
-        for(int i=0;i<bullets.size();++i)
-        {
-            if(!bullets.get(i).getIsLived())
-            {
-                bullets.remove(i);
-                --i;
-            }
-            else
-                break;
-        }
+        return item;
 
-        System.out.println("The number of the bullets:"+bullets.size());
+
+        //System.out.println("The number of the bullets:"+bullets.size());
     }
     /*---------------------------------------------
     * 以下是几句话的简单函数*/
@@ -149,4 +141,13 @@ abstract public class Tank {
                     break;
         }
     }
+
+    public boolean isLived() {
+        return isLived;
+    }
+
+    public void setLived(boolean lived) {
+        isLived = lived;
+    }
+
 }

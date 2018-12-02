@@ -46,4 +46,16 @@ public class Bullet implements Runnable{
     public boolean getIsLived() {
         return isLived;
     }
+
+    public void setLived(boolean lived) {
+        isLived = lived;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
 }
