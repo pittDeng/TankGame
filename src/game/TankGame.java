@@ -35,6 +35,7 @@ class MyPanel extends JPanel implements KeyListener,Runnable {
     Hero hero;
     Vector<Enemy> enemies;
     private Vector<Bullet> bullets=new Vector<Bullet>();
+    private Vector<Boom> booms=new Vector<Boom>();
     private static int sleepTime=Parameter.flushTime;
     private int numEnemies=3;
     private int width;
@@ -62,6 +63,9 @@ class MyPanel extends JPanel implements KeyListener,Runnable {
         }
         for(int i=0;i<enemies.size();++i){
             enemies.get(i).paint(g);
+        }
+        for(int i=0;i<booms.size();++i){
+            booms.get(i).paint(g);
         }
     }
 
@@ -104,11 +108,9 @@ class MyPanel extends JPanel implements KeyListener,Runnable {
 
     @Override
     public void run() {
-        int numFlush=0;
         while (true){
             try{
                 Thread.sleep(sleepTime);
-                ++numFlush;
             }catch (InterruptedException e){
                 e.printStackTrace();
             }
@@ -120,6 +122,7 @@ class MyPanel extends JPanel implements KeyListener,Runnable {
             isHit();
             removeDeadBullet();
             removeDeadTank();
+            removeDeadBoom();
 //            System.out.println("I am flushing!");
             this.repaint();
         }
@@ -175,8 +178,20 @@ class MyPanel extends JPanel implements KeyListener,Runnable {
     }
     private void removeDeadTank(){
         for(int i=0;i<enemies.size();++i){
-            if(!enemies.get(i).isLived()){
+            Enemy item=enemies.get(i);
+            if(!item.isLived()){
+                Boom boom=new Boom(item.getX(),item.getY(),this);
+                booms.add(boom);
                 enemies.remove(i);
+                --i;
+            }
+        }
+    }
+    public void removeDeadBoom(){
+        System.out.println("现有boom："+booms.size()+"个");
+        for(int i=0;i<booms.size();++i){
+            if(!(booms.get(i).isLive())){
+                booms.remove(i);
                 --i;
             }
         }
