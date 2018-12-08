@@ -1,5 +1,7 @@
 package tank;
 
+import game.TankGame;
+
 import java.awt.*;
 import java.util.Date;
 import java.util.Vector;
@@ -91,10 +93,38 @@ abstract public class Tank {
     }
     /*---------------------------------------------
     * 以下是几句话的简单函数*/
-    public void moveUp(){y-=speed;}
-    public void moveDown(){y+=speed;}
-    public void moveLeft(){x-=speed;}
-    public void moveRight(){x+=speed;}
+    public boolean moveUp(){
+        y-=speed;
+        if(y<0){
+            y+=speed;
+            return true;
+        }
+        return false;
+    }
+    public boolean moveDown(){
+        y+=speed;
+        if(y> TankGame.height){
+            y-=speed;
+            return true;
+        }
+        return false;
+    }
+    public boolean moveLeft(){
+        x-=speed;
+        if(x<0){
+            x+=speed;
+            return true;
+        }
+        return false;
+    }
+    public boolean moveRight(){
+        x+=speed;
+        if(x>TankGame.width){
+            x-=speed;
+            return true;
+        }
+        return false;
+    }
     public int getX() {
         return x;
     }
