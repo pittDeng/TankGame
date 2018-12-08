@@ -34,3 +34,9 @@ _敌机可发射子弹(Version 3.1)_
 _英雄死亡与复活机制(Verison 3.2)_
 ---------------------
 * 敌机可击中英雄并且修复子弹生成位置的Bug
+
+_基本功能完成版本（Version 4.0)_
+----------------------
+* 可以定义多个Tank,并且一个Enemy死亡，会马上有另一个Enemy添上
+* 加入了Tank之间的碰撞机制，不会出现Tank重叠（在Tank后面定义了CheckCrash isCrash flushRightAndBottom 三个方法，其中CheckCrash和isCrash是静态的）
+* 至此基本功能已经实现

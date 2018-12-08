@@ -14,7 +14,9 @@ public class MyPanel extends JPanel implements KeyListener,Runnable {
     private Vector<Bullet> bullets=new Vector<Bullet>();
     private Vector<Boom> booms=new Vector<Boom>();
     private static int sleepTime= Parameter.flushTime;
-    private int numEnemies=3;
+    private int numEnemies=10;
+    private int enemiesOnScreen=3;
+    private int lifeNum=3;
     private int width;
     private int height;
     private TankGame tg;
@@ -24,12 +26,13 @@ public class MyPanel extends JPanel implements KeyListener,Runnable {
         this.tg=tg;
         hero=new Hero();
         enemies=new Vector<Enemy>();
-        for(int i=0;i<numEnemies;++i){
+        for(int i=0;i<enemiesOnScreen;++i){
             Enemy enemy=new Enemy();
             Thread th=new Thread(enemy);
             th.start();
             enemies.add(enemy);
         }
+        numEnemies-=enemiesOnScreen;
     }
     public void paint(Graphics g)
     {
@@ -91,7 +94,7 @@ public class MyPanel extends JPanel implements KeyListener,Runnable {
 
     @Override
     public void run() {
-        while (true){
+        while (lifeNum>0&&numEnemies>0){
             try{
                 Thread.sleep(sleepTime);
             }catch (InterruptedException e){
@@ -185,6 +188,8 @@ public class MyPanel extends JPanel implements KeyListener,Runnable {
             if(hero.isLived()&&bullet.getIsLived()){
                 if(isHitEnemy(hero,bullet)){
                     hero.DyingTime=new Date().getTime();
+                    //死亡减一条命
+                    --lifeNum;
                     Boom boom=new Boom(hero.getX(),hero.getY(),this);
                     booms.add(boom);
                 }
@@ -199,6 +204,13 @@ public class MyPanel extends JPanel implements KeyListener,Runnable {
                 Boom boom=new Boom(item.getX(),item.getY(),this);
                 booms.add(boom);
                 enemies.remove(i);
+                if(numEnemies>0){
+                    Enemy newEnemy=new Enemy();
+                    Thread th=new Thread(newEnemy);
+                    th.start();
+                    enemies.add(newEnemy);
+                    --numEnemies;
+                }
                 --i;
             }
         }

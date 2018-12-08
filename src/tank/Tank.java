@@ -1,5 +1,6 @@
 package tank;
 
+import game.MyPanel;
 import game.TankGame;
 
 import java.awt.*;
@@ -25,6 +26,8 @@ abstract public class Tank {
     private long twoShootInterVal=Parameter.twoShootInterval;
     private int x;
     private int y;
+    private int right;
+    private int bottom;
     private int type;
     private int dir;
     private int xBullet;
@@ -109,7 +112,7 @@ abstract public class Tank {
     * 以下是几句话的简单函数*/
     public boolean moveUp(){
         y-=speed;
-        if(y<0){
+        if(y<0||checkCrash(this)){
             y+=speed;
             return true;
         }
@@ -117,7 +120,7 @@ abstract public class Tank {
     }
     public boolean moveDown(){
         y+=speed;
-        if(y> TankGame.height-tankHeight){
+        if(y> TankGame.height-tankHeight||checkCrash(this)){
             y-=speed;
             return true;
         }
@@ -125,7 +128,7 @@ abstract public class Tank {
     }
     public boolean moveLeft(){
         x-=speed;
-        if(x<0){
+        if(x<0||checkCrash(this)){
             x+=speed;
             return true;
         }
@@ -133,7 +136,7 @@ abstract public class Tank {
     }
     public boolean moveRight(){
         x+=speed;
-        if(x>TankGame.width-tankWidth){
+        if(x>TankGame.width-tankWidth||checkCrash(this)){
             x-=speed;
             return true;
         }
@@ -197,4 +200,78 @@ abstract public class Tank {
         isLived = lived;
     }
 
+    public static int getWheelWidth() {
+        return wheelWidth;
+    }
+
+    public static void setWheelWidth(int wheelWidth) {
+        Tank.wheelWidth = wheelWidth;
+    }
+
+    public int getRight() {
+        return right;
+    }
+
+    public void setRight(int right) {
+        this.right = right;
+    }
+
+    public int getBottom() {
+        return bottom;
+    }
+
+    public void setBottom(int bottom) {
+        this.bottom = bottom;
+    }
+
+    //判断某Tank是否与其他Tank碰撞
+    public static boolean checkCrash(Tank tank){
+        Vector<Enemy>enemies=MyPanel.enemies;
+        for(int i=0;i<enemies.size();++i){
+            if(tank!=enemies.get(i)){
+                if(isCrash(tank,enemies.get(i)))return true;
+            }
+        }
+        if(tank!=MyPanel.hero&&isCrash(tank,MyPanel.hero))return true;
+        return false;
+    }
+    //判断两个Tank是否碰撞
+    private static boolean isCrash(Tank tank1,Tank tank2)
+    {
+        tank1.flushRightAndBottom();
+        tank2.flushRightAndBottom();
+        Tank temp;
+        if(tank2.getX()<tank1.getX()){
+            temp=tank2;
+            tank2=tank1;
+            tank1=temp;
+        }
+        if(tank2.getX()<tank1.getRight()){
+            if(tank2.getY()<tank1.getY()){
+                temp=tank2;
+                tank2=tank1;
+                tank1=temp;
+            }
+            if(tank2.getY()<tank1.getBottom()){
+                return true;
+            }
+        }
+        return false;
+
+    }
+    //更新right和bottom两个数值
+    private void flushRightAndBottom()
+    {
+        switch (getDir())
+        {
+            case 0:
+            case 2: right=x+tankWidth;
+            bottom=y+tankHeight;
+            break;
+            case 1:
+            case 3: right=x+tankHeight;
+            bottom=y+tankWidth;
+            break;
+        }
+    }
 }
