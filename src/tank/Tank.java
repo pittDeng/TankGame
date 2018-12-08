@@ -30,11 +30,9 @@ abstract public class Tank {
     private int xBullet;
     private int yBullet;
     private boolean isLived=true;
-    public Tank(int x,int y,int type){
-        this.x=x;
-        this.y=y;
+    public Tank(int type){
+        this.setRandomPosition();
         this.type=type;
-        this.dir=dir;
     }
 
     private void verticalPaint(Graphics g){
@@ -88,8 +86,10 @@ abstract public class Tank {
         // 创建不同的
         //子弹类
         if(this.type==0){
+            this.setBulletPosition();
             item=new Bullet(xBullet,yBullet,this.dir);
         }else{
+            this.setBulletPosition();
             item=new EBullet(xBullet,yBullet,this.dir);
         }
         Thread th=new Thread(item);
@@ -98,6 +98,12 @@ abstract public class Tank {
 
 
         //System.out.println("The number of the bullets:"+bullets.size());
+    }
+    //随机生成位置
+    protected void setRandomPosition(){
+        this.x=(int)((TankGame.width-tankWidth)*Math.random());
+        this.y=(int)((TankGame.height-tankHeight)*Math.random());
+        this.setDir((int)(4*Math.random()));
     }
     /*---------------------------------------------
     * 以下是几句话的简单函数*/
@@ -111,7 +117,7 @@ abstract public class Tank {
     }
     public boolean moveDown(){
         y+=speed;
-        if(y> TankGame.height){
+        if(y> TankGame.height-tankHeight){
             y-=speed;
             return true;
         }
@@ -127,11 +133,27 @@ abstract public class Tank {
     }
     public boolean moveRight(){
         x+=speed;
-        if(x>TankGame.width){
+        if(x>TankGame.width-tankWidth){
             x-=speed;
             return true;
         }
         return false;
+    }
+    private void setBulletPosition(){
+        switch (dir){
+            case 0:xBullet=x+wheelWidth+bodyWidth/2;
+                yBullet=y;
+                break;
+            case 1: xBullet=x+wheelLength;
+                yBullet=y+wheelWidth+bodyWidth/2;
+                break;
+            case 2: xBullet=x+wheelWidth+bodyWidth/2;
+                yBullet=y+wheelLength;
+                break;
+            case 3: xBullet=x;
+                yBullet=y+wheelWidth+bodyWidth/2;
+                break;
+        }
     }
     public int getX() {
         return x;
@@ -164,20 +186,7 @@ abstract public class Tank {
     public void setDir(int dir) {
         this.dir = dir;
         //修改子弹生成的位置
-        switch (dir){
-            case 0:xBullet=x+wheelWidth+bodyWidth/2;
-                    yBullet=y;
-                    break;
-            case 1: xBullet=x+wheelLength;
-                    yBullet=y+wheelWidth+bodyWidth/2;
-                    break;
-            case 2: xBullet=x+wheelWidth+bodyWidth/2;
-                    yBullet=y+wheelLength;
-                    break;
-            case 3: xBullet=x;
-                    yBullet=y+wheelWidth+bodyWidth/2;
-                    break;
-        }
+
     }
 
     public boolean isLived() {

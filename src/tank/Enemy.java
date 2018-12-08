@@ -6,9 +6,8 @@ import java.util.Vector;
 public class Enemy extends Tank implements Runnable {
     public static int sleepTime=150;
     public static Vector<Bullet> eBullets=new Vector<Bullet>();
-    public Enemy(int x,int y,int dir){
-        super(x,y,1);
-        setDir(dir);
+    public Enemy(){
+        super(1);
     }
 
 

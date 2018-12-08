@@ -1,7 +1,7 @@
 package game;
 
 import tank.*;
-
+import java.util.Date;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -9,8 +9,8 @@ import java.awt.event.KeyListener;
 import java.util.Vector;
 
 public class MyPanel extends JPanel implements KeyListener,Runnable {
-    Hero hero;
-    Vector<Enemy> enemies;
+    public static Hero hero;
+    public static Vector<Enemy> enemies;
     private Vector<Bullet> bullets=new Vector<Bullet>();
     private Vector<Boom> booms=new Vector<Boom>();
     private static int sleepTime= Parameter.flushTime;
@@ -22,22 +22,22 @@ public class MyPanel extends JPanel implements KeyListener,Runnable {
         this.width=tg.getWidth();
         this.height=tg.getHeight();
         this.tg=tg;
-        hero=new Hero(10,10);
+        hero=new Hero();
         enemies=new Vector<Enemy>();
         for(int i=0;i<numEnemies;++i){
-            Enemy enemy=new Enemy(50*i,50,(int)(Math.random()*3));
+            Enemy enemy=new Enemy();
             Thread th=new Thread(enemy);
             th.start();
             enemies.add(enemy);
         }
-
     }
     public void paint(Graphics g)
     {
         super.paint(g);
         g.setColor(Color.BLACK);
         g.fillRect(0,0,tg.getWidth(),tg.getHeight());
-        hero.paint(g);
+
+        if(hero.isLived())hero.paint(g);
         for(int i=0;i<bullets.size();++i){
             bullets.get(i).drawBullet(g);
         }
@@ -102,6 +102,7 @@ public class MyPanel extends JPanel implements KeyListener,Runnable {
 //                numFlush=0;
 //                isHit();
 //            }
+            if(!hero.isLived())hero.relive();
             isHit();
             removeDeadBullet();
             removeDeadTank();
@@ -142,7 +143,10 @@ public class MyPanel extends JPanel implements KeyListener,Runnable {
         //检查子弹是否正常销毁
         //System.out.println("bullets ' num"+bullets.size());
     }
-    private void isHitEnemy(Enemy enemy,Bullet bullet){
+    //这个函数初始版本是判断是否击中敌人的
+    //而后应为要判断英雄是否被击中，将enemy变量的类型从
+    //Enemy改为Tank就好了
+    private boolean isHitEnemy(Tank enemy,Bullet bullet){
         switch (enemy.getDir()){
             case 0:
             case 2:
@@ -150,6 +154,7 @@ public class MyPanel extends JPanel implements KeyListener,Runnable {
                         bullet.getY()>enemy.getY()&&bullet.getY()<enemy.getY()+Tank.tankHeight){
                     bullet.setLived(false);
                     enemy.setLived(false);
+                    return true;
                 }
                 break;
             case 1:
@@ -158,19 +163,36 @@ public class MyPanel extends JPanel implements KeyListener,Runnable {
                         bullet.getY()>enemy.getY()&&bullet.getY()<enemy.getY()+Tank.tankWidth){
                     bullet.setLived(false);
                     enemy.setLived(false);
+                    return true;
                 }
                 break;
         }
+        return false;
     }
     private void isHit(){
+        //检测我的坦克是否打到敌人
         for(int i=0;i<enemies.size();++i)
             for(int j=0;j<bullets.size();++j){
                 Enemy enemy=enemies.get(i);
                 Bullet bullet=bullets.get(j);
                 if(enemy.isLived()&&bullet.getIsLived()) isHitEnemy(enemies.get(i),bullets.get(j));
             }
+            //判断敌人的子弹是否击中英雄，顺便产生Boom
+            //如果在RemoveDeadTank中产生，Boom会一直产生
+            //因为这个类中无法将hero移除
+        for(int i=0;i<Enemy.eBullets.size();++i){
+            Bullet bullet=Enemy.eBullets.get(i);
+            if(hero.isLived()&&bullet.getIsLived()){
+                if(isHitEnemy(hero,bullet)){
+                    hero.DyingTime=new Date().getTime();
+                    Boom boom=new Boom(hero.getX(),hero.getY(),this);
+                    booms.add(boom);
+                }
+            }
+        }
     }
     private void removeDeadTank(){
+        //移除死亡的Enemy,同时产生爆炸效果
         for(int i=0;i<enemies.size();++i){
             Enemy item=enemies.get(i);
             if(!item.isLived()){
@@ -180,6 +202,7 @@ public class MyPanel extends JPanel implements KeyListener,Runnable {
                 --i;
             }
         }
+
     }
     public void removeDeadBoom(){
         //System.out.println("现有boom："+booms.size()+"个");
