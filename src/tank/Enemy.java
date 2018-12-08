@@ -1,11 +1,17 @@
 package tank;
 
+import java.util.Date;
+import java.util.Vector;
+
 public class Enemy extends Tank implements Runnable {
     public static int sleepTime=150;
+    public static Vector<Bullet> eBullets=new Vector<Bullet>();
     public Enemy(int x,int y,int dir){
         super(x,y,1);
         setDir(dir);
     }
+
+
 
     @Override
     public void run() {
@@ -25,6 +31,15 @@ public class Enemy extends Tank implements Runnable {
                     break;
             }
             ++nstep;
+            //随机发射子弹
+            if(nstep%4==(int)(Math.random()*4)){
+                Bullet item= this.shoot();
+                if(item!=null){
+                    eBullets.add(item);
+                }
+                Thread th=new Thread(item);
+                th.start();
+            }
             try{
                 Thread.sleep(sleepTime);
             }catch (InterruptedException e){

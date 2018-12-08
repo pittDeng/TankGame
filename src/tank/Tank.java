@@ -83,7 +83,15 @@ abstract public class Tank {
         //每次都按shoot都要生成一个线程
         if(new Date().getTime()-lastShootTime<twoShootInterVal)return null;
         lastShootTime=new Date().getTime();
-        Bullet item=new Bullet(xBullet,yBullet,this.dir);
+        Bullet item=null;
+        //判断是敌机产生的子弹还是Hero产生的子弹，
+        // 创建不同的
+        //子弹类
+        if(this.type==0){
+            item=new Bullet(xBullet,yBullet,this.dir);
+        }else{
+            item=new EBullet(xBullet,yBullet,this.dir);
+        }
         Thread th=new Thread(item);
         th.start();
         return item;

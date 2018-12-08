@@ -5,7 +5,9 @@ import java.awt.*;
 public class Bullet implements Runnable{
     private static int speed=Parameter.bulletSpeed;
     private static int sleepTime=Parameter.bulletSleepTime;
-    private static int bulletWidth=2;
+    protected static int bulletWidth=2;
+    protected static Color hBulletColor=Color.CYAN;
+    protected static Color eBulletColor=Color.YELLOW;
     private int x;
     private int y;
     private int dir;
@@ -17,7 +19,7 @@ public class Bullet implements Runnable{
         this.dir=dir;
     }
     public void drawBullet(Graphics g){
-        g.setColor(Color.CYAN);
+        g.setColor(hBulletColor);
         g.draw3DRect(x,y,bulletWidth,bulletWidth,false);
     }
     @Override
@@ -57,5 +59,17 @@ public class Bullet implements Runnable{
 
     public int getY() {
         return y;
+    }
+}
+
+class EBullet extends Bullet{
+    public EBullet(int x,int y,int dir){
+        super(x,y,dir);
+    }
+
+    @Override
+    public void drawBullet(Graphics g) {
+        g.setColor(eBulletColor);
+        g.draw3DRect(super.getX(),super.getY(),bulletWidth,bulletWidth,false);
     }
 }

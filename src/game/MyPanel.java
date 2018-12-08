@@ -44,6 +44,9 @@ public class MyPanel extends JPanel implements KeyListener,Runnable {
         for(int i=0;i<enemies.size();++i){
             enemies.get(i).paint(g);
         }
+        for(int i=0;i<Enemy.eBullets.size();++i){
+            Enemy.eBullets.get(i).drawBullet(g);
+        }
         for(int i=0;i<booms.size();++i){
             booms.get(i).paint(g);
         }
@@ -108,6 +111,17 @@ public class MyPanel extends JPanel implements KeyListener,Runnable {
         }
     }
     private void removeDeadBullet(){
+        //移除死亡的敌机子弹
+        for(int i=0;i<Enemy.eBullets.size();++i){
+            if(!Enemy.eBullets.get(i).getIsLived())
+            {
+                Enemy.eBullets.remove(i);
+                --i;
+            }
+            else
+                continue;
+        }
+        //移除死亡的英雄子弹
         for(int i=0;i<bullets.size();++i)
         {
             if(!bullets.get(i).getIsLived())
